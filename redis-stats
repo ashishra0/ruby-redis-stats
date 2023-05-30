@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+require_relative 'redis-stats'
+require 'tty-prompt'
+require 'colorize'
+
+REDIS = RedisStats.new("127.0.0.1")
+
+def prompt
+  system("clear")
+  TTY::Prompt.new
+end
+
+def menu
+  prompt.select("Make a selection".yellow, filter: true, per_page: 5) do |menu|
+    menu.choice "Report", -> { report }
+    menu.choice "Memory usage for a key", -> { mem_usage_for_key }
+    menu.choice "Connected clients", -> { connected_clients }
+    menu.choice "Exit", -> { system("exit") }
+  end
+end
+
+def report
+  REDIS.report
+end
+
+def mem_usage_for_key
+  selection = prompt.ask("Enter key")
+  REDIS.memory_usage_for_key(selection)
+end
+
+def connected_clients
+  puts REDIS.connected_clients
+end
+
+menu
